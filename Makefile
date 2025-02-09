@@ -39,10 +39,15 @@ rebuild: check-docker
 
 # Run the container after ensuring image is built
 run: build
-	# Display run message
 	@echo "Ejecutando el contenedor..."
-	# Run container with Downloads folder mounted and interactive terminal
-	@docker run -it -v $(HOME)/Downloads:/home/cliuser/downloads cli-env
+	@if docker ps --filter "name=cli-env-container" --filter "status=running" -q | grep -q .; then \
+		echo "El contenedor cli-env-container ya está en ejecución."; \
+	elif docker ps -a --filter "name=cli-env-container" -q | grep -q .; then \
+		echo "Reiniciando contenedor cli-env-container existente..."; \
+		docker start -ai cli-env-container; \
+	else \
+		docker run --name cli-env-container -it -v $(HOME)/Downloads:/home/cliuser/downloads cli-env; \
+	fi
 
 # Check if the Docker image exists, build it if it doesn't
 check-image:
