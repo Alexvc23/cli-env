@@ -51,3 +51,31 @@ This project includes a Docker environment to provide a consistent and isolated 
 
 - **Container Execution**:  
     Finally, it runs the container interactively (`-it`) and mounts the host's downloads folder into the container. This way, any files downloaded within the container will be accessible on the host system.
+
+## Why This Solution Works Well
+
+1. **Operating System Independence**
+    - Your older MacBook might be stuck on an older macOS version
+    - Some modern CLI tools require newer OS versions or dependencies
+    - The Docker environment runs Ubuntu 22.04, giving you access to the latest tools regardless of your host OS
+
+2. **Consistent Environment**
+    - Provides a fresh, clean Ubuntu environment every time
+    - All necessary tools are pre-installed (`ffmpeg`, `python3-pip`, `wget`, etc.)
+    - No conflicts with your existing MacBook setup
+
+3. **Resource Management**
+    - Docker containers are lightweight compared to full VMs
+    - You can use modern tools without upgrading your hardware
+    - The environment only uses resources when you need it
+
+4. **File Access**
+    - The `downloads` folder is shared between your Mac and the container
+    - Work in the container but easily access files on your MacBook
+
+## How to Use It
+
+1. Install Docker for Mac (compatible with older versions)
+2. Run the `docker_dev_env.sh` script
+3. Work inside the container with all tools available
+4. Find your downloaded files in the local `downloads` folder
