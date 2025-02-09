@@ -76,6 +76,6 @@ This project includes a Docker environment to provide a consistent and isolated 
 ## How to Use It
 
 1. Install Docker for Mac (compatible with older versions)
-2. Run the `docker_dev_env.sh` script
+2. Run the `Makefile`
 3. Work inside the container with all tools available
 4. Find your downloaded files in the local `downloads` folder
