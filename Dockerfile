@@ -7,7 +7,19 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Actualizamos el sistema e instalamos paquetes básicos y dependencias
-RUN apt-get update && apt-get install -y     python3-pip     ffmpeg     wget     ca-certificates     git     vim     nano     less     curl     build-essential     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    ffmpeg \
+    wget \
+    ca-certificates \
+    git \
+    vim \
+    nano \
+    less \
+    curl \
+    build-essential \
+    tree \
+    && rm -rf /var/lib/apt/lists/*
 
 # Instalamos la última versión de yt-dlp usando pip
 RUN pip3 install --no-cache-dir --upgrade yt-dlp
