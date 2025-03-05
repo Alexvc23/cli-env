@@ -1,5 +1,5 @@
 # Define phony targets (targets that don't create files)
-.PHONY: all check-docker build run rebuild
+.PHONY: all check-docker build run rebuild clean-rebuild
 
 # Default target that runs the container
 all: run
@@ -36,6 +36,23 @@ rebuild: check-docker
 	@docker image rm cli-env || true
 	# Call build target to create new image
 	@$(MAKE) build
+
+# Force rebuild without using cache
+clean-rebuild: check-docker
+	# Stop and remove containers using the image
+	@echo "Deteniendo contenedores que usan la imagen (si existen)..."
+	@docker ps -a --filter ancestor=cli-env -q | xargs -r docker rm -f
+	# Remove existing image if it exists
+	@echo "Eliminando la imagen existente (si existe)..."
+	@docker image rm cli-env || true
+	# Build without cache
+	@echo "Construyendo la imagen Docker sin cache..."
+	@docker build --no-cache -t cli-env -f Dockerfile .
+	# Check if build was successful, exit with error if not
+	@if [ $$? -ne 0 ]; then \
+		echo "Error: Falló la construcción de la imagen. Revisa el Dockerfile y tu configuración de Docker."; \
+		exit 1; \
+	fi
 
 # Run the container after ensuring image is built
 run: build

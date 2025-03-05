@@ -1,5 +1,5 @@
-# Usamos una imagen base de Ubuntu 22.04
-FROM ubuntu:22.04
+# Use the latest stable version of Ubuntu
+FROM ubuntu:latest
 
 # Sets environment variable to prevent interactive prompts during package installation
 # This is particularly useful for automated builds where user input isn't possible
@@ -7,7 +7,10 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Actualizamos el sistema e instalamos paquetes básicos y dependencias
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    apt-get update && \
+    apt-get install -y \
     python3-pip \
     ffmpeg \
     wget \
@@ -18,11 +21,12 @@ RUN apt-get update && apt-get install -y \
     less \
     curl \
     build-essential \
-    tree \
-    && rm -rf /var/lib/apt/lists/*
+    tree && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Instalamos la última versión de yt-dlp usando pip
-RUN pip3 install --no-cache-dir --upgrade yt-dlp
+RUN pip3 install --no-cache-dir --upgrade yt-dlp --break-system-packages
 
 # Creamos un directorio de trabajo (opcional)
 WORKDIR /home/cliuser
