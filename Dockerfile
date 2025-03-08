@@ -12,6 +12,7 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y \
     python3-pip \
+    python3-venv \
     ffmpeg \
     wget \
     ca-certificates \
@@ -22,6 +23,13 @@ RUN apt-get update && \
     curl \
     build-essential \
     tree && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Get Python version and install appropriate venv package
+RUN PYTHON_VERSION=$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1,2) && \
+    apt-get update && \
+    apt-get install -y python${PYTHON_VERSION}-venv && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

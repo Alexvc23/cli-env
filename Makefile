@@ -39,7 +39,10 @@ rebuild: check-docker
 
 # Force rebuild without using cache
 clean-rebuild: check-docker
-	# Stop and remove containers using the image
+	# Stop and remove container by name if it exists
+	@echo "Deteniendo y eliminando el contenedor cli-env-container (si existe)..."
+	@docker rm -f cli-env-container 2>/dev/null || true
+	# Stop and remove any other containers using the image
 	@echo "Deteniendo contenedores que usan la imagen (si existen)..."
 	@docker ps -a --filter ancestor=cli-env -q | xargs -r docker rm -f
 	# Remove existing image if it exists
