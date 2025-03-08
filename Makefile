@@ -59,6 +59,8 @@ run: build
 	@echo "Ejecutando el contenedor..."
 	@if docker ps --filter "name=cli-env-container" --filter "status=running" -q | grep -q .; then \
 		echo "El contenedor cli-env-container ya está en ejecución."; \
+		echo "Entrando al contenedor..."; \
+		docker exec -it cli-env-container /bin/bash; \
 	elif docker ps -a --filter "name=cli-env-container" -q | grep -q .; then \
 		echo "Reiniciando contenedor cli-env-container existente..."; \
 		docker start -ai cli-env-container; \
