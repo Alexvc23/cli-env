@@ -45,5 +45,27 @@ VOLUME ["/home/cliuser/downloads"]
 # Establecemos el directorio de descargas
 RUN mkdir -p /home/cliuser/downloads
 
-# Comando por defecto: abrir una shell interactiva
-CMD ["bash"]
+# Install zsh and other useful terminal tools
+RUN apt-get update && \
+    apt-get install -y zsh \
+    powerline \
+    fonts-powerline \
+    locales && \
+    locale-gen en_US.UTF-8 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Oh My Zsh for better terminal experience
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# Configure zsh with some sensible defaults
+RUN echo 'export LANG=en_US.UTF-8' >> /root/.zshrc && \
+    echo 'export TERM=xterm-256color' >> /root/.zshrc && \
+    echo 'plugins=(git python pip docker)' >> /root/.zshrc && \
+    echo 'ZSH_THEME="agnoster"' >> /root/.zshrc
+
+# Set zsh as default shell
+RUN chsh -s $(which zsh)
+
+# Use zsh as the default command
+CMD ["zsh"]
