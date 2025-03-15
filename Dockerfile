@@ -33,8 +33,12 @@ RUN PYTHON_VERSION=$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1,2) && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Instalamos la última versión de yt-dlp usando pip
-RUN pip3 install --no-cache-dir --upgrade yt-dlp --break-system-packages
+# Create and use a Python virtual environment for package installations
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir --upgrade yt-dlp && \
+    pip3 install --no-cache-dir ipynb-py-convert
 
 # Creamos un directorio de trabajo (opcional)
 WORKDIR /home/cliuser

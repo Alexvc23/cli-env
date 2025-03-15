@@ -68,7 +68,7 @@ run: build
 		echo "Reiniciando contenedor cli-env-container existente..."; \
 		docker start -ai cli-env-container; \
 	else \
-		docker run --name cli-env-container -it -v $(HOME)/Downloads:/home/cliuser/downloads cli-env; \
+		docker run --name cli-env-container -it -v $(HOME)/sgoinfre:/home/cliuser/downloads cli-env; \
 	fi
 
 # Check if the Docker image exists, build it if it doesn't
