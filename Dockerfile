@@ -1,75 +1,37 @@
-# Use the latest stable version of Ubuntu
-FROM ubuntu:latest
+# Use Ubuntu 22.04 as base image
+FROM ubuntu:22.04
 
-# Sets environment variable to prevent interactive prompts during package installation
-# This is particularly useful for automated builds where user input isn't possible
-# The noninteractive frontend ensures apt-get doesn't stop for user input
+# Set noninteractive installation mode
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Actualizamos el sistema e instalamos paquetes básicos y dependencias
+# Update repositories and install essential packages in a single RUN
 RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    apt-get update && \
     apt-get install -y \
-    python3-pip \
-    python3-venv \
-    ffmpeg \
-    wget \
-    ca-certificates \
-    git \
-    vim \
-    nano \
-    less \
-    curl \
-    build-essential \
-    tree && \
-    apt-get clean && \
+      python3-pip \
+      ffmpeg \
+      wget \
+      git \
+      build-essential \
+      vim && \
     rm -rf /var/lib/apt/lists/*
 
-# Get Python version and install appropriate venv package
-RUN PYTHON_VERSION=$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1,2) && \
-    apt-get update && \
-    apt-get install -y python${PYTHON_VERSION}-venv && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Copy requirements file and install Python dependencies as root.
+# This will install packages into the system site-packages.
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
-# Create and use a Python virtual environment for package installations
-RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir --upgrade yt-dlp && \
-    pip3 install --no-cache-dir ipynb-py-convert
+# Create a non-root user for improved security.
+RUN useradd -ms /bin/bash cliuser
 
-# Creamos un directorio de trabajo (opcional)
+# Switch to non-root user.
+USER cliuser
+
+# Set working directory to the non-root user's home.
 WORKDIR /home/cliuser
 
-# Indicamos que se pueda montar un volumen para descargas (opcional)
+# Create a directory for downloads and mark it as a Docker volume.
+RUN mkdir -p downloads
 VOLUME ["/home/cliuser/downloads"]
 
-# Establecemos el directorio de descargas
-RUN mkdir -p /home/cliuser/downloads
-
-# Install zsh and other useful terminal tools
-RUN apt-get update && \
-    apt-get install -y zsh \
-    powerline \
-    fonts-powerline \
-    locales && \
-    locale-gen en_US.UTF-8 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install Oh My Zsh for better terminal experience
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-
-# Configure zsh with some sensible defaults
-RUN echo 'export LANG=en_US.UTF-8' >> /root/.zshrc && \
-    echo 'export TERM=xterm-256color' >> /root/.zshrc && \
-    echo 'plugins=(git python pip docker)' >> /root/.zshrc && \
-    echo 'ZSH_THEME="agnoster"' >> /root/.zshrc
-
-# Set zsh as default shell
-RUN chsh -s $(which zsh)
-
-# Use zsh as the default command
-CMD ["zsh"]
+# Default command launches an interactive Bash shell.
+CMD ["/bin/bash"]

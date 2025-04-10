@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cli
+    volumes:
+      - ./downloads:/home/cliuser/downloads
+    tty: true
+    stdin_open: true
+    command: /bin/bash
+
+  notebook:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: notebook
+    volumes:
+      - ./downloads:/home/cliuser/downloads
+    ports:
+      - "8888:8888"
+    command: jupyter notebook --ip=0.0.0.0 --no-browser
