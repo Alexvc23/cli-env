@@ -6,8 +6,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: cli
+    # Mount the local 'downloads' directory to '/home/cliuser/downloads' inside the container
+    # This allows files downloaded in the container to persist on the host machine
+    # and enables sharing files between the host and container
     volumes:
-      - ./downloads:/home/cliuser/downloads
+      - ~/Documents/programing/42/projects/:/home/cliuser/downloads
     tty: true
     stdin_open: true
     command: /bin/bash
@@ -18,7 +21,7 @@ services:
       dockerfile: Dockerfile
     container_name: notebook
     volumes:
-      - ./downloads:/home/cliuser/downloads
+      - ~/Documents/programing/42/projects/ft_matrix:/home/cliuser/downloads/ft_matrix
     ports:
       - "8888:8888"
     command: jupyter notebook --ip=0.0.0.0 --no-browser

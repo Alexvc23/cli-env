@@ -13,11 +13,11 @@ help:
 	@echo "  make clean       - Stop containers and remove built images"
 
 # Build the Docker images via Docker Compose.
-build:
+build: ensure-docker
 	docker compose build
 
 # Start the containers in detached mode.
-up:
+up: ensure-docker
 	docker compose up -d
 
 # Stop and remove the containers.
@@ -42,3 +42,17 @@ logs:
 # Stop containers and remove the built images.
 clean:
 	docker compose down --rmi all
+
+# Ensure Docker is running
+ensure-docker:
+	@if ! docker info > /dev/null 2>&1; then \
+		echo "Docker is not running. Starting Docker..."; \
+		open -a Docker; \
+		echo "Waiting for Docker to start..."; \
+		until docker info > /dev/null 2>&1; do \
+			sleep 2; \
+		done; \
+		echo "Docker is now running."; \
+	else \
+		echo "Docker is already running."; \
+	fi
