@@ -1,10 +1,12 @@
-.PHONY: help build up down restart cli notebook logs clean
+.PHONY: help build up up-cli up-notebook down restart cli notebook logs clean
 
 # Display available commands.
 help:
 	@echo "Makefile commands:"
 	@echo "  make build       - Build Docker images for CLI and Notebook"
 	@echo "  make up          - Start both CLI and Notebook containers (detached)"
+	@echo "  make up-cli      - Start only the CLI container (detached)"
+	@echo "  make up-notebook - Start only the Notebook container (detached)"
 	@echo "  make down        - Stop and remove both containers"
 	@echo "  make restart     - Restart the entire environment"
 	@echo "  make cli         - Open an interactive shell in the CLI container"
@@ -19,6 +21,14 @@ build: ensure-docker
 # Start the containers in detached mode.
 up: ensure-docker
 	docker compose up -d
+
+# Start only the CLI container
+up-cli: ensure-docker
+	docker compose up -d cli
+
+# Start only the Notebook container
+up-notebook: ensure-docker
+	docker compose up -d notebook
 
 # Stop and remove the containers.
 down:
