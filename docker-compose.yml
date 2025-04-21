@@ -10,7 +10,7 @@ services:
     # This allows files downloaded in the container to persist on the host machine
     # and enables sharing files between the host and container
     volumes:
-      - ~/Documents/programing/42/projects/:/home/cliuser/downloads
+      - ~/Documents/programing/:/home/cliuser/downloads/
     tty: true
     stdin_open: true
     command: /bin/bash
@@ -21,7 +21,55 @@ services:
       dockerfile: Dockerfile
     container_name: notebook
     volumes:
-      - ~/Documents/programing/42/projects/ft_matrix:/home/cliuser/downloads/ft_matrix
+      - ~/Documents/programing/:/home/cliuser/downloads/
     ports:
       - "8888:8888"
     command: jupyter notebook --ip=0.0.0.0 --no-browser
+    # Specifies the Docker Compose file format version to use
+
+  postgres:
+    # Specifies which Docker image to use, here PostgreSQL version 14
+    image: postgres:14
+    # Sets a custom container name instead of auto-generated one
+    container_name: piscineds_postgres
+    # Environment variables passed to the container
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    # Maps ports from host to container (host_port:container_port)
+    ports:
+      - "5432:5432"  # Exposes PostgreSQL default port to the host machine
+    # Defines persistent volumes to store data
+    volumes:
+      # Mounts a named volume 'postgres_data' to the container's PostgreSQL data directory
+      # This ensures that database data persists even if the container is removed or recreated
+      # The data is stored in the Docker managed volume system instead of the container filesystem
+      # Using a named volume for data persistence
+      - postgres_data:/var/lib/postgresql/data
+    # Restart policy: container restarts unless explicitly stopped
+    restart: unless-stopped
+
+  # Second service named 'pgadmin' - a PostgreSQL administration tool
+  pgadmin:
+    # Specifies the Docker image for pgAdmin 4
+    image: dpage/pgadmin4
+    # Sets a custom container name
+    container_name: piscineds_pgadmin
+    # Environment variables for pgAdmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    # Maps ports from host to container
+    ports:
+      - "5050:80"  # Maps host port 5050 to container port 80 (web interface)
+    # Specifies that this service depends on postgres service
+    depends_on:
+      - postgres  # pgAdmin will start after postgres service
+    # Restart policy: container restarts unless explicitly stopped
+    restart: unless-stopped
+
+# No need for named volumes as we're using a host path volume now# Define named volumes
+volumes:
+  postgres_data:
+    # Using a named volume for PostgreSQL data persistence

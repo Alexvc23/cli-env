@@ -3,16 +3,20 @@
 # Display available commands.
 help:
 	@echo "Makefile commands:"
-	@echo "  make build       - Build Docker images for CLI and Notebook"
-	@echo "  make up          - Start both CLI and Notebook containers (detached)"
+	@echo "  make help        - Display this help information"
+	@echo "  make build       - Build Docker images"
+	@echo "  make up          - Start all containers (detached)"
 	@echo "  make up-cli      - Start only the CLI container (detached)"
 	@echo "  make up-notebook - Start only the Notebook container (detached)"
-	@echo "  make down        - Stop and remove both containers"
+	@echo "  make up-postgres - Start only the Postgres container (detached)"
+	@echo "  make up-pgadmin  - Start only the pgAdmin container (detached)"
+	@echo "  make down        - Stop and remove containers"
 	@echo "  make restart     - Restart the entire environment"
 	@echo "  make cli         - Open an interactive shell in the CLI container"
 	@echo "  make notebook    - Open an interactive shell in the Notebook container"
-	@echo "  make logs        - Follow logs from both containers"
+	@echo "  make logs        - Follow logs from all containers"
 	@echo "  make clean       - Stop containers and remove built images"
+	@echo "  make ensure-docker - Ensure Docker is running"
 
 # Build the Docker images via Docker Compose.
 build: ensure-docker
@@ -29,6 +33,14 @@ up-cli: ensure-docker
 # Start only the Notebook container
 up-notebook: ensure-docker
 	docker compose up -d notebook
+
+# Start only the Postgres container
+up-postgres: ensure-docker
+	docker compose up -d postgres 
+	
+# Start only the pgAdmin container
+up-pgadmin: ensure-docker
+	docker compose up -d pgadmin 
 
 # Stop and remove the containers.
 down:
