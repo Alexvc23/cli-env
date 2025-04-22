@@ -1,26 +1,26 @@
-yt-dlp
-notebook
-jupyter_server
-traitlets
-
 # Core data manipulation & parsing
 pandas>=2.2,<2.3
-python-dateutil>=2.9,<3
 pycountry>=24.0,<25
+python-dateutil>=2.9,<3
 
 # HTTP requests & scraping
-requests>=2.31,<3
 beautifulsoup4>=4.12,<5
 lxml>=4.9,<5
+requests>=2.31,<3
 
 # Calendar / ICS handling
 ics>=0.7,<1
 
 # Progress bars & utilities
-tqdm>=4.66,<5
 python-dotenv>=1.0,<2
+tqdm>=4.66,<5
 
 # Database connectivity
 psycopg2-binary>=2.9,<3
 SQLAlchemy>=2.0,<2.1
 
+# Other utilities
+jupyter_server
+notebook
+traitlets
+yt-dlp

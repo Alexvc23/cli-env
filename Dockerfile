@@ -4,16 +4,20 @@ FROM ubuntu:22.04
 # Set noninteractive installation mode
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update repositories and install essential packages in a single RUN
-RUN apt-get update && \
-    apt-get install -y \
-      python3-pip \
-      ffmpeg \
-      wget \
-      git \
-      build-essential \
-      vim && \
-    rm -rf /var/lib/apt/lists/*
+# Install system dependencies and Python3
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       python3 \
+       python3-pip \
+       ffmpeg \
+       wget \
+       git \
+       build-essential \
+       vim \
+       tree \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 
 # Copy requirements file and install Python dependencies as root.
 # This will install packages into the system site-packages.

@@ -65,6 +65,46 @@ logs:
 clean:
 	docker compose down --rmi all
 
+# Clean and rebuild the CLI container
+re-cli: clean-cli
+	docker compose build cli
+	docker compose up -d cli
+
+# Clean and rebuild the Notebook container
+re-notebook: clean-notebook
+	docker compose build notebook
+	docker compose up -d notebook
+
+# Clean and rebuild the Postgres container
+re-postgres: clean-postgres
+	docker compose build postgres
+	docker compose up -d postgres
+
+# Clean and rebuild the pgAdmin container
+re-pgadmin: clean-pgadmin
+	docker compose build pgadmin
+	docker compose up -d pgadmin
+
+# Clean only the CLI container
+clean-cli:
+	docker compose rm -sf cli
+	docker rmi $(shell docker images -q cli:latest 2>/dev/null) 2>/dev/null || true
+
+# Clean only the Notebook container
+clean-notebook:
+	docker compose rm -sf notebook
+	docker rmi $(shell docker images -q notebook:latest 2>/dev/null) 2>/dev/null || true
+
+# Clean only the Postgres container
+clean-postgres:
+	docker compose rm -sf postgres
+	docker rmi $(shell docker images -q postgres:latest 2>/dev/null) 2>/dev/null || true
+
+# Clean only the pgAdmin container
+clean-pgadmin:
+	docker compose rm -sf pgadmin
+	docker rmi $(shell docker images -q pgadmin:latest 2>/dev/null) 2>/dev/null || true
+
 # Ensure Docker is running
 ensure-docker:
 	@if ! docker info > /dev/null 2>&1; then \

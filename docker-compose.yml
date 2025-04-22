@@ -10,7 +10,7 @@ services:
     # This allows files downloaded in the container to persist on the host machine
     # and enables sharing files between the host and container
     volumes:
-      - ~/Documents/programing/:/home/cliuser/downloads/
+      - ~/brige-projects:/home/cliuser/downloads/
     tty: true
     stdin_open: true
     command: /bin/bash
@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile
     container_name: notebook
     volumes:
-      - ~/Documents/programing/:/home/cliuser/downloads/
+      - ~/brige-projects:/home/cliuser/downloads/
     ports:
       - "8888:8888"
     command: jupyter notebook --ip=0.0.0.0 --no-browser
