@@ -15,6 +15,7 @@ RUN apt-get update \
        build-essential \
        vim \
        tree \
+          zsh \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -37,5 +38,5 @@ WORKDIR /home/cliuser
 RUN mkdir -p downloads
 VOLUME ["/home/cliuser/downloads"]
 
-# Default command launches an interactive Bash shell.
-CMD ["/bin/bash"]
+# Default command launches an interactive Zsh shell.
+CMD ["/bin/zsh"]
