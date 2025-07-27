@@ -62,8 +62,6 @@ services:
     ports:
       - "5050:80"  # Maps host port 5050 to container port 80 (web interface)
     # Specifies that this service depends on postgres service
-    depends_on:
-      - postgres  # pgAdmin will start after postgres service
     # Restart policy: container restarts unless explicitly stopped
     restart: unless-stopped
 

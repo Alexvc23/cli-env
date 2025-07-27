@@ -1,4 +1,4 @@
-.PHONY: help build up up-cli up-notebook down restart cli notebook logs clean
+.PHONY: help build up up-cli up-notebook down stop restart cli notebook logs clean
 
 # Display available commands.
 help:
@@ -11,6 +11,7 @@ help:
 	@echo "  make up-postgres   - Start only the Postgres container (detached)"
 	@echo "  make up-pgadmin    - Start only the pgAdmin container (detached)"
 	@echo "  make down          - Stop and remove containers"
+	@echo "  make stop          - Stop containers without removing them"
 	@echo "  make restart       - Restart the entire environment"
 	@echo "  make cli           - Open an interactive shell in the CLI container"
 	@echo "  make notebook      - Open an interactive shell in the Notebook container"
@@ -54,6 +55,10 @@ up-pgadmin: ensure-docker
 # Stop and remove the containers.
 down:
 	docker compose down
+
+# Stop containers without removing them.
+stop:
+	docker compose stop
 
 # Restart the containers.
 restart: down up
@@ -122,7 +127,7 @@ ensure-docker:
 		echo "Waiting for Docker to start..."; \
 		until docker info > /dev/null 2>&1; do \
 			sleep 2; \
-		done; \
+			done; \
 		echo "Docker is now running."; \
 	else \
 		echo "Docker is already running."; \
