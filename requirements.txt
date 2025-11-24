@@ -1,30 +1,43 @@
-# Core data manipulation & parsing
-pandas>=2.2,<2.3
-pycountry>=24.0,<25
-python-dateutil>=2.9,<3
+# --- CORE DATA MANIPULATION & PARSING ---
+pycountry
+python-dateutil
+numpy
+pandas
+h5py
 
-# HTTP requests & scraping
-beautifulsoup4>=4.12,<5
-lxml>=4.9,<5
-requests>=2.31,<3
-
-# Calendar / ICS handling
-ics>=0.7,<1
-
-# Progress bars & utilities
-python-dotenv>=1.0,<2
-tqdm>=4.66,<5
-
-# Database connectivity
-psycopg2-binary>=2.9,<3
-SQLAlchemy>=2.0,<2.1
-
-# Testing
-pytest
-
-# Other utilities
-jupyter_server
-notebook
-traitlets
+# --- HTTP REQUESTS & SCRAPING ---
+beautifulsoup4
+lxml
+requests
 yt-dlp
 spotdl
+
+# --- COMPUTER VISION & IMAGE PROCESSING ---
+opencv-python
+plantcv
+scikit-image
+
+# --- DEEP LEARNING & ML ---
+tensorflow
+scikit-learn
+
+# --- VISUALIZATION ---
+matplotlib
+seaborn
+
+# --- DATABASE CONNECTIVITY ---
+psycopg2-binary
+SQLAlchemy
+
+# --- CALENDAR & UTILITIES ---
+ics
+python-dotenv
+tqdm
+
+# --- JUPYTER & DEVELOPMENT ---
+jupyter_server
+traitlets
+notebook
+ipykernel
+flake8
+pytest
