@@ -1,4 +1,4 @@
-.PHONY: help build up up-cli up-notebook down stop restart cli notebook logs clean
+.PHONY: help build up up-cli up-notebook down stop restart cli notebook logs clean validate-path
 
 # Display available commands.
 help:
@@ -26,22 +26,35 @@ help:
 	@echo "  make clean-postgres- Clean only the Postgres container"
 	@echo "  make clean-pgadmin - Clean only the pgAdmin container"
 	@echo "  make ensure-docker - Ensure Docker is running"
+	@echo "  make validate-path - Validate that the volume path exists"
 
+
+# Validate that the volume path exists and is accessible
+validate-path:
+	@VOLUME_PATH=$${LOCAL_VOLUME_PATH:-~/Downloads}; \
+	EXPANDED_PATH=$$(eval echo $$VOLUME_PATH); \
+	if [ ! -d "$$EXPANDED_PATH" ]; then \
+		echo "Error: Volume path '$$EXPANDED_PATH' does not exist."; \
+		echo "Please create the directory or update LOCAL_VOLUME_PATH in your .env file."; \
+		echo "To create the directory, run: mkdir -p $$EXPANDED_PATH"; \
+		exit 1; \
+	fi; \
+	echo "Volume path validated: $$EXPANDED_PATH"
 
 # Build the Docker images via Docker Compose.
 build: ensure-docker
 	docker compose build
 
 # Start the containers in detached mode.
-up: ensure-docker
+up: ensure-docker validate-path
 	docker compose up -d
 
 # Start only the CLI container
-up-cli: ensure-docker
+up-cli: ensure-docker validate-path
 	docker compose up -d cli
 
 # Start only the Notebook container
-up-notebook: ensure-docker
+up-notebook: ensure-docker validate-path
 	docker compose up -d notebook
 
 # Start only the Postgres container

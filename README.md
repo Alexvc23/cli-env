@@ -79,7 +79,14 @@ The `docker-compose.yml` defines **two services**:
   ```
   This binds the server to all interfaces and exposes it on port 8888.
 
-Both services mount the local `./downloads` folder into `/home/cliuser/downloads` within the container.
+Both services mount a local directory (configured via `LOCAL_VOLUME_PATH` environment variable) into `/home/cliuser/downloads` within the container. If `LOCAL_VOLUME_PATH` is not set in `.env`, it defaults to `~/Downloads`.
+
+### .env File
+
+The `.env` file contains environment variables used by Docker Compose:
+- **PostgreSQL Configuration**: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+- **pgAdmin Configuration**: `PGADMIN_DEFAULT_EMAIL`, `PGADMIN_DEFAULT_PASSWORD`
+- **Volume Configuration**: `LOCAL_VOLUME_PATH` - the local directory to mount in containers (defaults to `~/Downloads`)
 
 ### requirements.txt
 
@@ -157,9 +164,30 @@ to open a shell in the Notebook container for debugging or configuration tasks.
 
 ## Volume Mapping
 
-The directory `./downloads` in your project root is mounted as a volume in both containers at `/home/cliuser/downloads`. This means:
-- Any file you save to the `downloads` folder inside the container will be available on your host.
+A local directory on your host machine is mounted as a volume in both the CLI and Notebook containers at `/home/cliuser/downloads`. This configuration is controlled by the `LOCAL_VOLUME_PATH` environment variable in your `.env` file.
+
+### Configuration
+
+- **Environment Variable**: `LOCAL_VOLUME_PATH` in `.env` file
+- **Default Value**: `~/Downloads` (your user's Downloads folder)
+- **Container Mount Point**: `/home/cliuser/downloads`
+
+### How It Works
+
+- Any file you save to the `downloads` folder inside the container will be available on your host at the path specified by `LOCAL_VOLUME_PATH`.
 - This shared folder makes it easy to manage persistent data between sessions and across the CLI and Notebook environments.
+- You can customize the local directory by editing `LOCAL_VOLUME_PATH` in the `.env` file.
+
+### Customizing the Volume Path
+
+To use a different local directory:
+
+1. Edit the `.env` file
+2. Change `LOCAL_VOLUME_PATH` to your desired path (e.g., `LOCAL_VOLUME_PATH=/Users/yourusername/projects/data`)
+3. Ensure the directory exists before starting containers, or the Makefile will prompt you to create it
+4. Run `make up` or `make up-cli`/`make up-notebook`
+
+The path validation runs automatically when you start containers using the Makefile targets.
 
 ---
 

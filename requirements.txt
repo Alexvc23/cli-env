@@ -27,3 +27,4 @@ jupyter_server
 notebook
 traitlets
 yt-dlp
+spotdl

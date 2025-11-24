@@ -4,11 +4,12 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: cli
-    # Mount the local 'downloads' directory to '/home/cliuser/downloads' inside the container
+    # Mount the local directory (configured via LOCAL_VOLUME_PATH) to '/home/cliuser/downloads' inside the container
     # This allows files downloaded in the container to persist on the host machine
     # and enables sharing files between the host and container
+    # Defaults to ~/Downloads if LOCAL_VOLUME_PATH is not set in .env
     volumes:
-      - ~/brige-projects:/home/cliuser/downloads/
+      - ${LOCAL_VOLUME_PATH:-~/Downloads}:/home/cliuser/downloads/
     tty: true
     stdin_open: true
     command: /bin/bash
@@ -19,7 +20,7 @@ services:
       dockerfile: Dockerfile
     container_name: notebook
     volumes:
-      - ~/brige-projects:/home/cliuser/downloads/
+      - ${LOCAL_VOLUME_PATH:-~/Downloads}:/home/cliuser/downloads/
     ports:
       - "8888:8888"
     command: jupyter notebook --ip=0.0.0.0 --no-browser
