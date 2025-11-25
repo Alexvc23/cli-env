@@ -30,6 +30,43 @@ Both services share a common volume so that files (e.g. downloaded or generated 
 
 ---
 
+## Quick Start (TL;DR)
+
+For experienced users who want to get started quickly:
+
+```bash
+# 1. Clone and navigate to the repository
+git clone <repository-url>
+cd cli-env
+
+# 2. Create and configure .env file
+cat > .env << EOF
+POSTGRES_USER=myuser
+POSTGRES_PASSWORD=mypassword
+POSTGRES_DB=piscineds
+PGADMIN_DEFAULT_EMAIL=admin@example.com
+PGADMIN_DEFAULT_PASSWORD=admin
+LOCAL_VOLUME_PATH=$HOME/docker-volumes/cli-env
+EOF
+
+# 3. Create and configure volume directory
+mkdir -p ~/docker-volumes/cli-env
+chmod -R a+rwX ~/docker-volumes/cli-env
+
+# 4. Build and start
+make build
+make up
+
+# 5. Access services
+# - Jupyter Notebook: http://localhost:8888
+# - pgAdmin: http://localhost:5050
+# - CLI: make cli
+```
+
+For detailed setup instructions, see [First-Time Setup](#first-time-setup) below.
+
+---
+
 ## Overview
 
 This project is designed to provide a consistent, reproducible development environment using Docker. It is especially useful for users who want to avoid dependency and configuration issues on their host systems. The environment includes:
@@ -120,6 +157,99 @@ The provided Makefile simplifies management of the environment. Available target
 
 ## Usage Instructions
 
+### First-Time Setup
+
+When setting up this environment on a new computer for the first time, follow these steps:
+
+#### 1. Prerequisites
+
+Ensure you have the following installed:
+- **Docker**: Install Docker Desktop (for Mac/Windows) or Docker Engine (for Linux)
+- **Docker Compose**: Usually included with Docker Desktop, or install separately on Linux
+- **Make**: Should be pre-installed on Mac/Linux; for Windows, use WSL or install via chocolatey
+
+Verify installations:
+```bash
+docker --version
+docker compose version
+make --version
+```
+
+#### 2. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd cli-env
+```
+
+#### 3. Configure Environment Variables
+
+Create or edit the `.env` file in the project root:
+
+```bash
+# Copy the example or create a new .env file
+cp .env.example .env  # if an example exists
+# OR
+nano .env  # or use your preferred editor
+```
+
+Configure the following variables:
+
+```properties
+# PostgreSQL configuration
+POSTGRES_USER=your_username
+POSTGRES_PASSWORD=your_secure_password
+POSTGRES_DB=piscineds
+
+# pgAdmin configuration
+PGADMIN_DEFAULT_EMAIL=admin@example.com
+PGADMIN_DEFAULT_PASSWORD=admin
+
+# Volume configuration
+# Set this to your desired local directory for persistent storage
+LOCAL_VOLUME_PATH=/path/to/your/local/directory
+```
+
+**Important**: Replace `/path/to/your/local/directory` with an actual path on your system, for example:
+- macOS: `/Users/yourusername/docker-volumes/cli-env`
+- Linux: `/home/yourusername/docker-volumes/cli-env`
+- Windows (WSL): `/mnt/c/Users/yourusername/docker-volumes/cli-env`
+
+#### 4. Create and Configure the Volume Directory
+
+Create the directory specified in `LOCAL_VOLUME_PATH`:
+
+```bash
+# Create the directory
+mkdir -p /path/to/your/local/directory
+
+# Set permissions to allow Docker containers to write to it
+# This is crucial to avoid permission errors when working with VS Code or creating files
+chmod -R a+rwX /path/to/your/local/directory
+```
+
+**Why is this needed?** The Docker containers run as a non-root user (`cliuser`) with a specific UID/GID. Making the directory world-writable ensures that the container can create, edit, and delete files without permission issues, especially when using VS Code's Remote Containers extension.
+
+**Alternative approach** (more secure, but may require additional configuration):
+```bash
+# Find your user's UID and GID
+id -u  # e.g., 1000
+id -g  # e.g., 1000
+
+# Change ownership to match your user
+sudo chown -R $(id -u):$(id -g) /path/to/your/local/directory
+```
+
+#### 5. Validate Your Setup
+
+Before building, validate that the volume path exists:
+
+```bash
+make validate-path
+```
+
+This will check if the directory specified in `LOCAL_VOLUME_PATH` exists and is accessible.
+
 ### Building the Environment
 
 From the project root, run:
@@ -193,7 +323,61 @@ The path validation runs automatically when you start containers using the Makef
 
 ## Troubleshooting
 
-If you encounter the error:
+### Common Issues and Solutions
+
+#### 1. Permission Denied Errors
+
+**Error Message:**
+```
+Error: EACCES: permission denied, open '/home/cliuser/downloads/filename.txt'
+```
+or
+```
+Unable to write file ... (NoPermissions (FileSystemError))
+```
+
+**Cause:** The Docker container cannot write to the mounted volume directory due to permission restrictions.
+
+**Solutions:**
+
+**Option A: Make directory world-writable (easiest)**
+```bash
+chmod -R a+rwX /path/to/your/LOCAL_VOLUME_PATH
+```
+
+**Option B: Match ownership to your user**
+```bash
+sudo chown -R $(id -u):$(id -g) /path/to/your/LOCAL_VOLUME_PATH
+```
+
+**Option C: Create a new directory with proper permissions**
+```bash
+# Create a new directory
+mkdir -p ~/docker-volumes/cli-env
+chmod -R a+rwX ~/docker-volumes/cli-env
+
+# Update .env file to use the new path
+nano .env  # Edit LOCAL_VOLUME_PATH
+
+# Restart containers
+make down
+make up
+```
+
+#### 2. High UID/GID Issues
+
+**Error Message:**
+```
+unable to setup user: cannot setuid to unmapped uid XXXXX in user namespace
+```
+
+**Cause:** Your system uses a high user ID (UID > 65536) that Docker cannot map into the container's user namespace.
+
+**Solution:** Do not use the `user:` directive in `docker-compose.yml`. Instead, rely on making the host directory writable (see Permission Denied solutions above). The containers will run as the `cliuser` created in the Dockerfile, and the world-writable permissions allow file operations to work correctly.
+
+#### 3. Module Not Found Errors
+
+**Error Message:**
 ```
 ModuleNotFoundError: No module named 'jupyter_server.contents'
 ```
@@ -201,7 +385,10 @@ or
 ```
 TypeError: warn() missing 1 required keyword-only argument: 'stacklevel'
 ```
-then verify that your `requirements.txt` is up to date and that your Notebook and traitlets versions are pinned as follows:
+
+**Cause:** Incompatible or missing Python packages in the environment.
+
+**Solution:** Ensure your `requirements.txt` is up to date and that your Notebook and traitlets versions are pinned as follows:
 - `notebook==6.5.6`
 - `traitlets==5.9.0`
 
@@ -219,7 +406,97 @@ To rebuild the environment after modifying dependencies:
    ```
    Ensure that the Notebook container starts up without these errors.
 
-If the CLI environment works but the Notebook does not open, check that your host’s port 8888 is not in use and verify the volume mapping if there are missing files.
+#### 4. Port Already in Use
+
+**Error Message:**
+```
+Error starting userland proxy: listen tcp4 0.0.0.0:8888: bind: address already in use
+```
+
+**Cause:** Another service is already using port 8888 on your host machine.
+
+**Solution:** Either:
+- Stop the conflicting service
+- Change the port in `docker-compose.yml`:
+  ```yaml
+  ports:
+    - "8889:8888"  # Use host port 8889 instead
+  ```
+  Then access Jupyter at `http://localhost:8889`
+
+#### 5. Volume Path Not Found
+
+**Error Message:**
+```
+Error: Volume path '/path/to/directory' does not exist.
+```
+
+**Cause:** The directory specified in `LOCAL_VOLUME_PATH` doesn't exist.
+
+**Solution:**
+```bash
+# Create the directory
+mkdir -p /path/to/directory
+
+# Set permissions
+chmod -R a+rwX /path/to/directory
+
+# Restart
+make up
+```
+
+#### 6. Docker Not Running
+
+**Error Message:**
+```
+Cannot connect to the Docker daemon
+```
+
+**Cause:** Docker service is not running on your system.
+
+**Solution:**
+- **Mac/Windows**: Open Docker Desktop application
+- **Linux**: Start Docker service:
+  ```bash
+  sudo systemctl start docker
+  sudo systemctl enable docker  # to start on boot
+  ```
+
+#### 7. Jupyter Notebook Token Required
+
+**Issue:** Jupyter asks for a token when you access `http://localhost:8888`.
+
+**Solution:** Find the token in the container logs:
+
+```bash
+make logs
+```
+
+Look for a line like:
+```
+http://127.0.0.1:8888/?token=abc123def456...
+```
+
+Copy the token and paste it into the browser, or use the full URL with the token.
+
+To disable token authentication (not recommended for production):
+```bash
+# Edit docker-compose.yml, change the notebook command to:
+command: jupyter notebook --ip=0.0.0.0 --no-browser --NotebookApp.token='' --NotebookApp.password=''
+```
+
+### Getting Help
+
+If you encounter other issues not covered here:
+1. Check container logs: `make logs`
+2. Check container status: `docker compose ps`
+3. Verify environment variables: `cat .env`
+4. Ensure Docker has enough resources (CPU/Memory) in Docker Desktop settings
+5. Try a clean rebuild: `make clean && make build && make up`
+6. Check Docker disk space: `docker system df`
+7. Review the [Docker documentation](https://docs.docker.com/) for platform-specific issues
+
+If the CLI environment works but the Notebook does not open, check that your host's port 8888 is not in use and verify the volume mapping if there are missing files.
 
 ---
 
@@ -239,8 +516,3 @@ This project is released under the [MIT License](LICENSE).
 ---
 
 Happy coding! If you have any questions or run into issues, feel free to open an issue or reach out via the repository’s discussion forum.
-```
-
----
-
-This README.md explains in detail the architecture, functionality, and how to work with the CLI and Jupyter Notebook services in your environment. Feel free to further customize or adjust it to your specific needs.
